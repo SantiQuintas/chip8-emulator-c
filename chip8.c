@@ -29,14 +29,14 @@ int chip8Decode(Chip8* c)
     uint16_t dir = linea & 0x0fff;
     switch(instruccion)
     { 
-        case 0x0: // guardar dir en pc
+        case 0x0: 
             switch(dir)
             {
-                case 0x0E0:
+                case clearScreen:
                     memset(c->pantalla, 0, sizeof(c->pantalla));
                     c->pc+=2;
                     break;
-                case 0x0EE:  
+                case retPCFromSP:  
                     if(c->sp==0)
                         return ERR_STK; 
                     c->sp--;
@@ -48,10 +48,10 @@ int chip8Decode(Chip8* c)
 
             
             break;
-        case 0x1: // guardar dir en pc
+        case saveDirInPC: // guardar dir en pc
             c->pc=dir;
             break;
-        case 0x2: // guardar dir en pc
+        case saveNextDirInPC:
             if(c->sp >= 16)
                 return ERR_STK;
             
@@ -59,7 +59,7 @@ int chip8Decode(Chip8* c)
             c->sp++;
             c->pc=dir;
             break;
-        case 0x3:// saltear prox ins si ==
+        case skipIfVxEq:// saltear prox ins si ==
             {
                 uint16_t pos = dir>>8;
                 pos &= 0xf;
@@ -70,7 +70,7 @@ int chip8Decode(Chip8* c)
                     c->pc+=2;
             }
             break;
-        case 0x4:// saltear prox ins si !=
+        case skipIfVxNotEq:// saltear prox ins si !=
             {
                 uint16_t pos = dir>>8;
                 pos &= 0xf;
@@ -84,7 +84,7 @@ int chip8Decode(Chip8* c)
 
             break;
         
-        case 0x5:
+        case skipIfVxEqVy:
             {
                 if((dir & 0x00f) != 0)
                     return ERR_INS;
@@ -101,7 +101,7 @@ int chip8Decode(Chip8* c)
                 
             }
             break;
-        case 0x6:
+        case saveInVx:
             {
                 uint16_t pos = dir>>8;
                 pos &= 0xf;
@@ -110,7 +110,7 @@ int chip8Decode(Chip8* c)
                 c->pc+=2;
             }
             break;
-        case 0x7: 
+        case addInVx: 
             {
                 uint16_t pos = dir>>8;
                 pos &= 0xf;
@@ -119,7 +119,7 @@ int chip8Decode(Chip8* c)
                 c->pc+=2;
             }
             break;
-        case 0x8: 
+        case opInVxVy: 
             {   
                 uint16_t x = dir>>8;
                 x &= 0xf;
@@ -195,7 +195,7 @@ int chip8Decode(Chip8* c)
 
             }
             break;
-        case 0x9: 
+        case skipIfVxNotEqVy: 
             {
                 if((dir & 0x00f) != 0)
                     return ERR_INS;
@@ -211,14 +211,14 @@ int chip8Decode(Chip8* c)
                     c->pc+=2;    
             }
             break;
-        case 0xA:
+        case saveDirInI:
             c->regI = dir;
             c->pc+=2;
             break;
-        case 0xB:
+        case saveAddDirV0InPC:
             c->pc = dir + c->regV0VF[0];
             break;
-        case 0xD:
+        case drawPixels:
             {
                 uint16_t x = dir>>8;
                 x &= 0xf;
@@ -231,7 +231,7 @@ int chip8Decode(Chip8* c)
                     
                     for(int j=0; j<8 ; j++)
                         {   
-                            int escribir = (c->memoria[c->regI + i] >> 7-j) & 1;
+                            int escribir = (c->memoria[c->regI + i] >> (7-j)) & 1;
                             c->pantalla[c->regV0VF[y] + i][c->regV0VF[x]+j] ^= escribir;
                         }
                         
