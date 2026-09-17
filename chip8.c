@@ -128,19 +128,19 @@ int chip8Decode(Chip8* c)
                 int operacion = dir & 0x00f;
                 switch(operacion)
                 {   
-                    case 0x0:
+                    case 0x0: //GUARDAR VY EN VX
                             c->regV0VF[x] = c->regV0VF[y];
                         break;
-                    case 0x1:
+                    case 0x1://GUARDAR VX OR VY EN VX
                             c->regV0VF[x] |= c->regV0VF[y];
                         break;
-                    case 0x2:
+                    case 0x2://GUARDAR VX AND VY EN VX
                             c->regV0VF[x] &= c->regV0VF[y];
                         break;
-                    case 0x3:
+                    case 0x3://GUARDAR VX XOR VY EN VX
                             c->regV0VF[x] ^= c->regV0VF[y];
                         break;
-                    case 0x4:
+                    case 0x4://GUARDAR VX + VY EN VX Y CARRY EN VF
                         {
                             uint16_t suma = c->regV0VF[x] + c->regV0VF[y];
                             c->regV0VF[x] = suma;
@@ -150,7 +150,7 @@ int chip8Decode(Chip8* c)
                                 c->regV0VF[vf] = 0;
                         }
                         break;
-                    case 0x5:
+                    case 0x5://GUARDAR VX - VY EN VX Y BORROW EN VF
                         {
                             uint16_t resta = c->regV0VF[x] - c->regV0VF[y];
                             uint16_t notBr = c->regV0VF[x] >= c->regV0VF[y];
@@ -163,14 +163,14 @@ int chip8Decode(Chip8* c)
                             
                         }
                         break;
-                    case 0x6:
+                    case 0x6: //GUARDAR VX CORRIDO UN BIT A LA DERECHA, BIT CORRIDO EN VF
                         {
                             uint16_t bitCorrido = c->regV0VF[x] & 1;
                             c->regV0VF[x]>>=1;
                             c->regV0VF[vf] = bitCorrido;
                         }
                         break;
-                    case 0x7:
+                    case 0x7: //GUARDAR VY - VX EN VX Y BORROW EN VF
                         {
                             uint16_t resta =  c->regV0VF[y] - c->regV0VF[x];
                             uint16_t br = c->regV0VF[x] > c->regV0VF[y];
@@ -181,7 +181,7 @@ int chip8Decode(Chip8* c)
                                 c->regV0VF[vf] = 1;
                         }
                         break;
-                    case 0xE:
+                    case 0xE: //GUARDAR VX CORRIDO UN BIT A LA IZQUIERDA, BIT CORRIDO EN VF
                         {
                             uint16_t bitCorrido = c->regV0VF[x]>>7;
                             c->regV0VF[x]<<=1;
