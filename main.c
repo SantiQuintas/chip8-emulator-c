@@ -36,6 +36,10 @@ int main(int argc, char *argv[])
             -1,
              SDL_RENDERER_ACCELERATED
         );
+
+
+        SDL_RenderSetVSync(render, 1);
+
         if(!render)
         {
             SDL_Quit();
@@ -44,17 +48,20 @@ int main(int argc, char *argv[])
                 
         int activo = 1;
         SDL_Event evento;
-        float acum = 0;
+        float acumT = 0;
+        float acumI = 0;
+        uint32_t tiempoAnt = SDL_GetTicks();
+        uint32_t tiempoDelta;
+        
         while(activo)
         {   
-            uint32_t tiempoAnt = SDL_GetTicks();
-            uint32_t tiempoDelta = SDL_GetTicks()-tiempoAnt;
-            acum+=tiempoDelta;
-            while(acum >= 16.67)
-            {
-                chip8Disminuir(&chip8);
-                acum-=16.67;
-            }
+            tiempoDelta= SDL_GetTicks()-tiempoAnt;
+            tiempoAnt = SDL_GetTicks();
+
+            acumT+=tiempoDelta;
+            acumI+=tiempoDelta;
+            
+
             while (SDL_PollEvent(&evento))
             {
                 if (evento.type == SDL_QUIT) 
@@ -62,71 +69,82 @@ int main(int argc, char *argv[])
                     activo = 0;
                 }
                 if(evento.type == SDL_KEYDOWN || evento.type == SDL_KEYUP)
-            {
-                switch(evento.key.keysym.sym)
                 {
-                    case SDLK_0:
-                        chip8.teclas[0] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_1:
-                        chip8.teclas[1] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_2:
-                        chip8.teclas[2] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_3:
-                        chip8.teclas[3] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_4:
-                        chip8.teclas[4] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_5:
-                        chip8.teclas[5] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_6:
-                        chip8.teclas[6] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_7:
-                        chip8.teclas[7] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_8:
-                        chip8.teclas[8] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_9:
-                        chip8.teclas[9] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_a:
-                        chip8.teclas[10] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_b:
-                        chip8.teclas[11] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_c:
-                        chip8.teclas[12] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_d:
-                        chip8.teclas[13] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_e:
-                        chip8.teclas[14] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;
-                    case SDLK_f:
-                        chip8.teclas[15] = evento.type == SDL_KEYDOWN ? 1 : 0;
-                    break;                     
-                    default:
+                    switch(evento.key.keysym.sym)
+                    {
+                        case SDLK_0:
+                            chip8.teclas[0] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_1:
+                            chip8.teclas[1] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_2:
+                            chip8.teclas[2] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_3:
+                            chip8.teclas[3] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_4:
+                            chip8.teclas[4] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_5:
+                            chip8.teclas[5] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_6:
+                            chip8.teclas[6] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_7:
+                            chip8.teclas[7] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_8:
+                            chip8.teclas[8] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_9:
+                            chip8.teclas[9] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_a:
+                            chip8.teclas[10] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_b:
+                            chip8.teclas[11] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_c:
+                            chip8.teclas[12] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_d:
+                            chip8.teclas[13] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_e:
+                            chip8.teclas[14] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;
+                        case SDLK_f:
+                            chip8.teclas[15] = evento.type == SDL_KEYDOWN ? 1 : 0;
+                        break;                     
+                        default:
 
 
+                        }
                     }
-                }
             }
 
-  
-            int decode = chip8Decode(&chip8);
-            if(decode != EXITO)
+
+            while(acumI >= factorInstruccion)
             {
-                printf("ERROR DE INSTRUCCION\n");
-                activo = 0;
+                int decode = chip8Decode(&chip8);
+                 if(decode != EXITO)
+                {
+                    printf("ERROR DE INSTRUCCION\n");
+                    activo = 0;
+                }
+                acumI-= factorInstruccion;
             }
+            
+            while(acumT >= factorTemporizador)
+            {
+                chip8Disminuir(&chip8);
+                acumT-=factorTemporizador;
+            }
+           
             SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
             SDL_RenderClear(render);
             for(int f=0 ; f < 32; f++)
@@ -138,13 +156,11 @@ int main(int argc, char *argv[])
                         SDL_Rect rect = {c*10,f*10,10,10};
                         SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
                         SDL_RenderFillRect(render, &rect);
+                        
                     }
-                  
                 }
+                
             }
-
-            
-            
             
             SDL_RenderPresent(render);
         }

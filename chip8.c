@@ -7,7 +7,7 @@ void chip8Init(Chip8* c)
     memset(c, 0, sizeof(*c));
     c->pc=0x200;
     //DIGITO 0
-    c->memoria[inicioFuente] = 0xF0;
+    c->memoria[inicioFuente] = 0xF0;        
     c->memoria[inicioFuente+1] = 0x90;
     c->memoria[inicioFuente+2] = 0x90;
     c->memoria[inicioFuente+3] = 0x90;
@@ -191,8 +191,6 @@ int chip8Decode(Chip8* c)
                 default:
                     return ERR_INS;
             }
-
-            
             break;
         case saveDirInPC: // guardar dir en pc
             c->pc=dir;
@@ -450,7 +448,7 @@ int chip8Decode(Chip8* c)
                         case 0x0A:
                         {
                             int encontrado=-1;
-                            for(int i=9; i<16 ; i++)
+                            for(int i=0; i<16 ; i++)
                             {
                                 if(c->teclas[i])
                                     encontrado=i;

@@ -34,6 +34,10 @@
 #define vf 15
 #define inicioFuente 0x50
 #define finFuente 0x9F
+#define hzInst 700
+#define hzTemp 60
+#define factorInstruccion 1000/hzInst
+#define factorTemporizador 1000/hzTemp
 
 //CHIP8 STRUCT
 typedef struct {
