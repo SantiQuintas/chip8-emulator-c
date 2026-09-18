@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <time.h>
 
 //Codigos DECODE
 #define saveDirInPC 0x1
@@ -27,10 +28,12 @@
 #define ERR_MEM -1
 #define ERR_INS -2
 #define ERR_STK -3
+#define ERR_ARCH -4
 
 //OTRAS MACROS
 #define vf 15
-
+#define inicioFuente 0x50
+#define finFuente 0x9F
 
 //CHIP8 STRUCT
 typedef struct {
@@ -41,11 +44,16 @@ typedef struct {
     uint16_t stack[16];
     uint8_t sp;
     uint8_t pantalla[32][64];
+    uint8_t teclas[16];
+    uint8_t delayTimer;
+    uint8_t soundTimer;
 } Chip8;
 
 //PRIMITIVAS
 void chip8Init(Chip8* c);
 int chip8Fetch(Chip8* c);
 int chip8Decode(Chip8* c);
+void chip8Disminuir(Chip8* c);
+int chip8CargarRom(Chip8* c, char* rutaArchivo);
 
 #endif //CHIP8_H
