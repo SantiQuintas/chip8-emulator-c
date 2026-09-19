@@ -31,9 +31,9 @@ y la inclui dentro de la carpeta donde esta el ejecutable. Para correr esta ROM 
 .\chip8.exe pong.ch8
 ```
 ## Caracteristicas Implementadas
--Instrucciones CHIP-8 Estandar
--Renderizado 64×32
--Teclado
--Timers
--Carga de ROM
--Beep
+- Instrucciones CHIP-8 Estandar
+- Renderizado 64×32
+- Teclado
+- Timers
+- Carga de ROM
+- Beep
