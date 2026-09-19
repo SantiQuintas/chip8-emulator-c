@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "CHIP-8",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/chip8.exe",
+            "args": ["pong.ch8"],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

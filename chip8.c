@@ -138,6 +138,8 @@ void chip8Disminuir(Chip8* c)
         c->soundTimer--;
 }
 
+
+
 int chip8CargarRom(Chip8* c, char* rutaArchivo)
 {
     FILE * rom = fopen(rutaArchivo, "rb"); //no indicaste en lectura o escritura
@@ -533,6 +535,7 @@ int chip8Decode(Chip8* c)
                         }
                         break;
                         default:
+                            printf("ERROR 0XF, pc%04x\n", c->pc);
                             return ERR_INS;
                     }
                 break;

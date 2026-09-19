@@ -1,22 +1,43 @@
 #include "chip8.h"
 #include <SDL2/SDL.h>
 
+#define ERR_ARG -4
+#define ERR_VID -5
+#define ERR_AUD -6
+typedef struct{
+    Chip8 *chip8;
+    float fase;
+} audioState;
+
+void callBack(void* userdata, Uint8* stream, int len);
+
 int main(int argc, char *argv[])
 {
     Chip8 chip8;
     chip8Init(&chip8);
-
-    int ret = chip8CargarRom(&chip8, "Pong.ch8");
+    if(argc < 2)
+    {
+        printf("ARGUMENTOS INVALIDOS");
+        return ERR_ARG;
+    }
+        
+    
+    int ret = chip8CargarRom(&chip8, argv[1]);
     if(ret != EXITO)
         printf("ERROR AL ABRIR EL ARCHIVO\n");
     else
     {   
         if (SDL_Init(SDL_INIT_VIDEO) != 0) 
         {
-            printf("Error al inicializar SDL: %s\n", SDL_GetError());
-            return 1;
+            printf("Error al inicializar Video: %s\n", SDL_GetError());
+            return ERR_VID;
         }
 
+        if (SDL_Init(SDL_INIT_AUDIO) != 0) 
+        {
+            printf("Error al inicializar Audio: %s\n", SDL_GetError());
+            return ERR_AUD;
+        }
         SDL_Window *ventana = SDL_CreateWindow(
             "CHIP-8",
             SDL_WINDOWPOS_UNDEFINED, 
@@ -45,14 +66,31 @@ int main(int argc, char *argv[])
             SDL_Quit();
             return 1;
         }
-                
-        int activo = 1;
+        SDL_AudioSpec audio = {0};
+        audioState state;
+        state.chip8 = &chip8;
+        state.fase = 0.0;
+
+        audio.freq = 44100;
+        audio.format = AUDIO_F32SYS;
+        audio.channels = 1;
+        audio.samples=512;
+        audio.userdata = &state;
+        audio.callback = callBack;
+        
+
+        int activo =  1;
         SDL_Event evento;
         float acumT = 0;
         float acumI = 0;
         uint32_t tiempoAnt = SDL_GetTicks();
         uint32_t tiempoDelta;
-        
+        SDL_AudioDeviceID id = SDL_OpenAudioDevice(NULL, 0, &audio, &audio, 0);
+        if(!id)
+            puts("ERROR AL ABRIR EL DISPOSITIVO DE AUDIO");
+
+        SDL_PauseAudioDevice(id, 0);
+
         while(activo)
         {   
             tiempoDelta= SDL_GetTicks()-tiempoAnt;
@@ -122,11 +160,9 @@ int main(int argc, char *argv[])
                         break;                     
                         default:
 
-
                         }
                     }
             }
-
 
             while(acumI >= factorInstruccion)
             {
@@ -173,4 +209,34 @@ int main(int argc, char *argv[])
     
 
     return EXITO;
+}
+
+
+void callBack(void* userdata, Uint8* stream, int len)
+{
+    audioState *audioS = (audioState*) userdata;
+    float *sF = (float*) stream;
+    int cantMuestras = len/sizeof(float);
+
+    if(audioS->chip8->soundTimer > 0 )
+    {
+        for(int i=0; i<cantMuestras; i++)
+        {   
+            if(audioS->fase < 0.5)
+                sF[i] = 0.025;
+            else
+                sF[i] = -0.025;
+
+            audioS->fase += 440.0f / 44100.0f;
+            if (audioS->fase >= 1.0f)
+                audioS->fase--;
+        }
+    }
+    else
+    {
+        for(int i=0; i<cantMuestras; i++)
+        {
+            sF[i] = 0.0;
+        }
+    }
 }
